@@ -3,6 +3,7 @@ package com.sales.functional;
 
 import com.sales.functional.database.Database;
 import com.sales.functional.entities.Customer;
+import com.sales.functional.entities.Product;
 import com.sales.functional.entities.Sale;
 
 import java.time.ZoneId;
@@ -150,15 +151,16 @@ public class SuppliesFunctional {
 
 
     //6. Calcule el monto total que pagó el cliente en cada venta.
-//    public static ArrayList<Sale> getSales(ArrayList Sale) {
-//        ArrayList<Sale> newList = new ArrayList<>();
-//        sales.stream().map(sale -> {
-//            long total_sale = sale.getItems().stream().reduce(0,Integer::sum);
-//        })
-//        return sales;
-//    }
+    public static List<Sale> getSales(List<Sale> sales) {
+        return sales.stream().map(sale -> {
+            double totalSale = sale.getItems().stream().mapToDouble(item -> item.getPrice()).sum();
+            sale.setTotal(totalSale);
+            return sale;
+        }).collect(Collectors.toList());
+    }
     public static void getTotalPayCustomer(){
-        Function<Sale,String> totalPayCustomer = sale -> String.valueOf("Cliente " + sale.getCustomer() + " Monto Total ");
+        List<Sale> updatedSales = getSales(sales);
+        updatedSales.forEach(sale -> System.out.println("Cliente " + sale.getCustomer() +" Total venta: " + sale.getTotal()));
     }
     //7.
     public static void getSailsWomen(){
@@ -179,9 +181,11 @@ public class SuppliesFunctional {
 
     //10.
     public static void maxMinSales(){
-        Optional<Double> maxSale = sales.stream().map(Sale::getTotal).max((v1,v2) -> (int) Math.max(v1,v2));
-        Optional<Double> minSale = sales.stream().map(Sale::getTotal).min((v1,v2) -> (int) Math.min(v1,v2));
+        List<Sale> updatedSales = getSales(sales);
+        Optional<Double> maxSale = updatedSales.stream().map(Sale::getTotal).max(Comparator.naturalOrder());
+        Optional<Double> minSale = updatedSales.stream().map(Sale::getTotal).min(Comparator.naturalOrder());
         System.out.println("maxSale = " + maxSale);
         System.out.println("minSale = " + minSale);
     }
+
 }
